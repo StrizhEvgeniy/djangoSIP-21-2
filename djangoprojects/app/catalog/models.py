@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.urls import reverse
 
@@ -44,8 +46,24 @@ class Book(models.Model):
         return reverse('book-detail', args=[str(self.id)])
 
 
+class BookInstance(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    book = models.ForeignKey(Book,on_delete=models.SET_NULL,null=True)
+    due_back = models.DateField(null=True,blank=True)
 
+    LOAN_STATUS = (
+        ('a','Available'),
+        ('r','Reserved'),
+        ('o','On Loan')
+    )
 
+    status = models.CharField(max_length=1,default='a',choices=LOAN_STATUS)
+
+    class Meta:
+        ordering = ['due_back']
+
+    def __str__(self):
+        return f"{self.book.title}, {self.id}"
 
 
 
